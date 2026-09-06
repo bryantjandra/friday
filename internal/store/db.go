@@ -64,3 +64,17 @@ func Open(path string) (*sql.DB, error) {
 
 	return db, nil
 }
+
+func Migrate(db *sql.DB) error {
+	_, err := db.Exec(`
+		CREATE TABLE IF NOT EXISTS reminders (
+			id	INTEGER PRIMARY KEY,
+			title TEXT NOT NULL,
+			due_at TIMESTAMP NOT NULL,
+			notes TEXT,
+			completed BOOLEAN DEFAULT 0, 
+			created_at TIMESTAMP NOT NULL
+		)
+	`)
+	return err
+}

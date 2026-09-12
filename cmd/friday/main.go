@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/bryantjandra/friday/internal/config"
+	"github.com/bryantjandra/friday/internal/llm"
 	"github.com/bryantjandra/friday/internal/store"
 )
 
@@ -56,6 +58,31 @@ func runPrompt(prompt string) error {
 		return err
 	}
 
-	fmt.Printf("Processing prompt %q", prompt)
+	client := llm.NewClient(cfg)
+
+	req := llm.Request{
+		MaxTokens: 1024,
+		Messages: []llm.Message{
+			{
+				Role: "user",
+				Content: []llm.ContentBlock{
+					{Type: "text", Text: prompt},
+				},
+			},
+		},
+	}
+
+	resp, err := client.CreateMessage(context.Background(), req)
+
+	if err != nil {
+		return err
+	}
+
+	for _, block := range resp.Content {
+		if block.Type == "text" {
+			fmt.Println(block.Text)
+		}
+	}
+
 	return nil
 }

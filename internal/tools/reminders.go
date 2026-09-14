@@ -14,6 +14,12 @@ type CreateReminderTool struct {
 	db *sql.DB
 }
 
+func NewCreateReminderTool(db *sql.DB) *CreateReminderTool {
+	return &CreateReminderTool{
+		db: db,
+	}
+}
+
 type createReminderArgs struct {
 	Title string `json:"title"`
 	DueAt string `json:"due_at"`

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/bryantjandra/friday/internal/agent"
 	"github.com/bryantjandra/friday/internal/config"
 	"github.com/bryantjandra/friday/internal/llm"
 	"github.com/bryantjandra/friday/internal/store"
@@ -62,7 +63,12 @@ func runPrompt(prompt string) error {
 		return err
 	}
 
+	registry := tools.NewRegistry()
+	registry.RegisterTool(tools.NewCreateReminderTool(db))
+
 	client := llm.NewClient(cfg)
+
+	systemPrompt := agent.BuildSystemPrompt()
 
 	req := llm.Request{
 		MaxTokens: 1024,
@@ -74,6 +80,9 @@ func runPrompt(prompt string) error {
 				},
 			},
 		},
+		System:   systemPrompt,
+		Tools:    registry.Definitions(),
+		Thinking: &llm.Thinking{Type: "disabled"},
 	}
 
 	resp, err := client.CreateMessage(context.Background(), req)
@@ -82,10 +91,10 @@ func runPrompt(prompt string) error {
 		return err
 	}
 
+	fmt.Printf("stop_reason: %s\n", resp.StopReason)
 	for _, block := range resp.Content {
-		if block.Type == "text" {
-			fmt.Println(block.Text)
-		}
+		fmt.Printf("type=%s name=%s input=%s text=%s\n",
+			block.Type, block.Name, string(block.Input), block.Text)
 	}
 
 	return nil

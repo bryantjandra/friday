@@ -25,6 +25,7 @@ func (r *Registry) GetTool(name string) (Tool, bool) {
 }
 
 func (r *Registry) Definitions() []llm.ToolDef {
+	/* we return an array of every single tool's name, description, and inputschema */
 	var toolDefs []llm.ToolDef
 	for _, tool := range r.ToolMap {
 		toolDef := llm.ToolDef{

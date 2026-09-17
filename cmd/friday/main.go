@@ -65,38 +65,16 @@ func runPrompt(prompt string) error {
 
 	registry := tools.NewRegistry()
 	registry.RegisterTool(tools.NewCreateReminderTool(db))
-
 	client := llm.NewClient(cfg)
 
-	systemPrompt := agent.BuildSystemPrompt()
-
-	req := llm.Request{
-		MaxTokens: 1024,
-		Messages: []llm.Message{
-			{
-				Role: "user",
-				Content: []llm.ContentBlock{
-					{Type: "text", Text: prompt},
-				},
-			},
-		},
-		System:   systemPrompt,
-		Tools:    registry.Definitions(),
-		Thinking: &llm.Thinking{Type: "disabled"},
-	}
-
-	resp, err := client.CreateMessage(context.Background(), req)
+	ag := agent.NewAgent(client, registry)
+	result, err := ag.Run(context.Background(), prompt)
 
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("stop_reason: %s\n", resp.StopReason)
-	for _, block := range resp.Content {
-		fmt.Printf("type=%s name=%s input=%s text=%s\n",
-			block.Type, block.Name, string(block.Input), block.Text)
-	}
-
+	fmt.Println(result)
 	return nil
 }
 

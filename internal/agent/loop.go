@@ -2,7 +2,9 @@ package agent
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/bryantjandra/friday/internal/llm"
@@ -57,12 +59,15 @@ func (a *Agent) Run(ctx context.Context, prompt string) (string, error) {
 	}
 
 	for i := 0; i < 10; i++ {
+		fmt.Printf("\n########## ITERATION %d ##########\n", i)
+		logJSON("\nREQUEST\n", req)
 
 		resp, err := a.client.CreateMessage(ctx, req)
-
 		if err != nil {
 			return "", err
 		}
+
+		logJSON("\nRESPONSE\n", resp)
 
 		req.Messages = append(req.Messages, llm.Message{Role: "assistant", Content: resp.Content})
 
@@ -72,11 +77,13 @@ func (a *Agent) Run(ctx context.Context, prompt string) (string, error) {
 				if block.Type == "tool_use" {
 					tool, ok := a.registry.GetTool(block.Name)
 					if !ok {
-						return "", errors.New("invalid tool was called")
+						toolResults = append(toolResults, llm.ContentBlock{Type: "tool_result", ToolUseID: block.ID, Content: fmt.Sprintf("Unkown tool: %s. The available tools are:  %q", block.Name, a.registry.Names()), IsError: true})
+						continue
 					}
 					res, err := tool.Execute(ctx, block.Input)
 					if err != nil {
-						return "", err
+						toolResults = append(toolResults, llm.ContentBlock{Type: "tool_result", ToolUseID: block.ID, Content: err.Error(), IsError: true})
+						continue
 					}
 					toolResults = append(toolResults, llm.ContentBlock{Type: "tool_result",
 						ToolUseID: block.ID,
@@ -98,4 +105,9 @@ func (a *Agent) Run(ctx context.Context, prompt string) (string, error) {
 	}
 
 	return "", errors.New("agent exceeded maximum amount of iterations before completing")
+}
+
+func logJSON(label string, v any) {
+	b, _ := json.MarshalIndent(v, "", "  ")
+	fmt.Printf("=== %s ===\n%s\n", label, string(b))
 }

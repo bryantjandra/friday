@@ -37,3 +37,11 @@ func (r *Registry) Definitions() []llm.ToolDef {
 	}
 	return toolDefs
 }
+
+func (r *Registry) Names() []string {
+	var toolNames []string
+	for _, tool := range r.ToolMap {
+		toolNames = append(toolNames, tool.Name())
+	}
+	return toolNames
+}

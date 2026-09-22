@@ -71,7 +71,6 @@ func Migrate(db *sql.DB) error {
 			id	INTEGER PRIMARY KEY,
 			title TEXT NOT NULL,
 			due_at TIMESTAMP NOT NULL,
-			notes TEXT,
 			completed BOOLEAN DEFAULT 0, 
 			created_at TIMESTAMP NOT NULL
 		)

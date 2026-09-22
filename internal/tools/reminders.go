@@ -74,7 +74,7 @@ func (t *CreateReminderTool) Execute(ctx context.Context, args json.RawMessage) 
 		return Result{IsError: true, Content: "due_at must be RFC3339, e.g. 2026-10-05T00:00:00Z"}, nil
 	}
 
-	id, err := store.CreateReminder(t.db, a.Title, dueAtParsed, "")
+	id, err := store.CreateReminder(t.db, a.Title, dueAtParsed)
 	if err != nil {
 		return Result{}, err
 	}

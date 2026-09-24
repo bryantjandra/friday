@@ -19,6 +19,7 @@ func BuildSystemPrompt() string {
 	- Today's date is %s. The timezone is Asia/Singapore. 
 	- If a date is given without a year, assume the closest date occurence.
 	- When providing a date to a tool, always use full RFC3339 format including the time and Z suffix (e.g. 2026-10-05T00:00:00Z).
+	- When interpreting 'this week', it means from today through the coming Sunday (the end of the current calendar week). 'next week' means the following Monday through Sunday. 
 	`, formattedDate)
 
 	return fullPrompt

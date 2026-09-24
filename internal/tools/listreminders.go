@@ -40,11 +40,11 @@ func (l *ListReminderTool) InputSchema() json.RawMessage {
 			"properties": {
 				"from": {
 					"type": "string",
-					"description": "Optional, RFC3339 format, it is an inclusive lower bound, omit for no lower bound."
+					"description": "Optional, RFC3339 format, it is an inclusive lower bound, omit for no lower bound. Always convert dates to UTC with a Z suffix when passing them to tools (never use a timezone offset like +08:00). "
 				},
 				"to": {
 					"type": "string",
-					"description": "Optional, RFC3339 format, inclusive upper bound, omit for no upper bound."
+					"description": "Optional, RFC3339 format, inclusive upper bound, omit for no upper bound. Always convert dates to UTC with a Z suffix when passing them to tools (never use a timezone offset like +08:00)."
 				},
 				"include_completed": {
 					"type": "boolean",

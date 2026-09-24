@@ -65,6 +65,7 @@ func runPrompt(prompt string) error {
 
 	registry := tools.NewRegistry()
 	registry.RegisterTool(tools.NewCreateReminderTool(db))
+	registry.RegisterTool(tools.NewListRemindersTool(db))
 	client := llm.NewClient(cfg)
 
 	ag := agent.NewAgent(client, registry)

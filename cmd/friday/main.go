@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/bryantjandra/friday/internal/agent"
 	"github.com/bryantjandra/friday/internal/config"
@@ -32,6 +33,8 @@ func run() error {
 		return nil
 	case "tooltest":
 		return runToolTest()
+	case "storetest":
+		return runStoreTest()
 	default:
 		/* Not a reserved subcommand, thus treat the whole string as the prompt */
 		return runPrompt(os.Args[1])
@@ -121,5 +124,34 @@ func runToolTest() error {
 	}
 
 	fmt.Printf("Result: IsError=%v, Content=%q\n", result.IsError, result.Content)
+	return nil
+}
+
+func runStoreTest() error {
+	/* Step 1: Load the config values */
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+
+	/* Step 2: Open the DB connection */
+	db, err := store.Open(cfg.DBPath)
+	if err != nil {
+		return err
+	}
+
+	defer db.Close()
+	if err := store.Migrate(db); err != nil {
+		return err
+	}
+
+	/* Step 3: Test the db function you want to test */
+	res, err := store.UpdateReminder(db, 2, "bryans bday", time.Time{})
+	if err != nil {
+		return err
+	} else {
+		fmt.Printf(res)
+	}
+
 	return nil
 }

@@ -30,7 +30,7 @@ func (l *ListReminderTool) Name() string {
 }
 
 func (l *ListReminderTool) Description() string {
-	return "List reminders. Takes in optional arguments (`from`, `to`, `include_completed`)."
+	return "List the user's reminders, sorted by due date. Use this to answer questions like 'what's coming up?', and always call it first to find a reminder's id before using complete_reminder, update_reminder, or delete_reminder. When looking for a specific reminder by name, omit from and to so a date filter doesn't hide it. Returns a JSON array of reminders with their ids; an empty result means nothing matched."
 }
 
 func (l *ListReminderTool) InputSchema() json.RawMessage {

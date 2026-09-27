@@ -30,7 +30,7 @@ func (t *CreateReminderTool) Name() string {
 }
 
 func (t *CreateReminderTool) Description() string {
-	return "Create a reminder for the user at a specific date. Use it when the user wants to create a reminder"
+	return "Create a new reminder. Use this when the user asks to be reminded about something, or to add or set a reminder. Do not use this to change an existing reminder; use update_reminder for that."
 }
 
 func (t *CreateReminderTool) InputSchema() json.RawMessage {
@@ -44,7 +44,7 @@ func (t *CreateReminderTool) InputSchema() json.RawMessage {
 				},
 				"due_at": {
 					"type": "string",
-					"description": "The date of the reminder in ISO 8601 format, e.g. 2026-10-05T00:00:00Z."
+					"description": "When the reminder is due, in RFC3339 format converted to UTC with a Z suffix, e.g. 2026-10-05T00:00:00Z (never use an offset like +08:00)."
 				}
 			},
 			"required": ["title", "due_at"]

@@ -9,6 +9,7 @@ import (
 )
 
 var ErrNotFound = errors.New("reminder not found")
+var ErrNothingToUpdate = errors.New("nothing to update as no parameters were supplied")
 
 type Reminder struct {
 	ID        int64  `json:"id"`
@@ -150,7 +151,7 @@ func UpdateReminder(db *sql.DB, id int64, title string, dueAt time.Time) (res st
 	}
 
 	if len(conditions) == 0 {
-		return "", errors.New("nothing to update as no parameters were supplied")
+		return "", ErrNothingToUpdate
 	}
 
 	query += " WHERE id = ?"

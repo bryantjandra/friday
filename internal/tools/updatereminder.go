@@ -32,7 +32,7 @@ func (t *UpdateReminderTool) Name() string {
 }
 
 func (t *UpdateReminderTool) Description() string {
-	return "Change an existing reminder's title, due date, or both. Use this when the user wants to reschedule, move, push back, bring forward, or rename a reminder (e.g. 'move the dentist to the 20th'). Never use create_reminder to change an existing reminder. Only send the fields that change. Get the id from list_reminders first; never guess an id."
+	return "Change an existing reminder's title, due date, or both. Use this when the user wants to reschedule, move, push back, bring forward, or rename a reminder (e.g. 'move the dentist to the 20th'). Never use create_reminder to change an existing reminder. Only send the fields that change. Get the id from list_reminders first; never guess an id. If two or more reminders match the user's words (e.g. two titles containing 'dentist'), do NOT call this tool: list the matching reminders and ask the user which one they mean."
 }
 
 func (t *UpdateReminderTool) InputSchema() json.RawMessage {

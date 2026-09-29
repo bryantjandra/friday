@@ -29,7 +29,7 @@ func (t *CompleteReminderTool) Name() string {
 }
 
 func (t *CompleteReminderTool) Description() string {
-	return "Mark a reminder as done. Use this whenever the user says they have done, finished, or completed something, even if they don't mention a reminder (e.g. 'I paid rent', 'done with the dentist'). This is the default when a task is finished; only use delete_reminder if the user explicitly asks to remove it. Get the id from list_reminders first; never guess an id."
+	return "Mark a reminder as done. Use this when the user says they have done, finished, or completed something, even if they don't mention a reminder (e.g. 'I paid rent', 'done with the dentist'). Prefer this over delete_reminder unless the user explicitly asks to remove it. Get the id from list_reminders first; never guess an id. If two or more reminders match the user's words (e.g. two titles containing 'dentist'), do NOT call this tool: list the matching reminders and ask the user which one they mean."
 }
 
 func (t *CompleteReminderTool) InputSchema() json.RawMessage {

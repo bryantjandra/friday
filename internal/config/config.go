@@ -7,10 +7,11 @@ import (
 )
 
 type Config struct {
-	APIKey  string
-	DBPath  string
-	BaseURL string
-	Model   string
+	APIKey   string
+	DBPath   string
+	BaseURL  string
+	Model    string
+	Timezone string
 }
 
 func Load() (Config, error) {
@@ -25,9 +26,10 @@ func Load() (Config, error) {
 		/* Unix convention for storing config data for a program
 		   Dot folder is used to not clutter home directory
 		*/
-		DBPath:  filepath.Join(home, ".friday", "friday.db"),
-		BaseURL: "https://dashscope-intl.aliyuncs.com/apps/anthropic",
-		Model:   "qwen3.7-flash",
+		DBPath:   filepath.Join(home, ".friday", "friday.db"),
+		BaseURL:  "https://dashscope-intl.aliyuncs.com/apps/anthropic",
+		Model:    "qwen3.7-flash",
+		Timezone: "Asia/Singapore",
 	}
 
 	/* fail early rather than calling the API with a missing API key */

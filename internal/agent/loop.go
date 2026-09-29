@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/bryantjandra/friday/internal/llm"
 	"github.com/bryantjandra/friday/internal/tools"
@@ -14,12 +15,14 @@ import (
 type Agent struct {
 	client   *llm.Client
 	registry *tools.Registry
+	location *time.Location
 }
 
-func NewAgent(client *llm.Client, registry *tools.Registry) *Agent {
+func NewAgent(client *llm.Client, registry *tools.Registry, location *time.Location) *Agent {
 	return &Agent{
 		client:   client,
 		registry: registry,
+		location: location,
 	}
 }
 
@@ -42,7 +45,7 @@ This is essential because the model is **stateless** — it remembers nothing be
 
 func (a *Agent) Run(ctx context.Context, prompt string) (string, error) {
 
-	systemPrompt := BuildSystemPrompt()
+	systemPrompt := BuildSystemPrompt(a.location)
 
 	messageHistory := []llm.Message{
 		{

@@ -4,13 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/bryantjandra/friday/internal/store"
 )
 
 type ListReminderTool struct {
-	db *sql.DB
+	db       *sql.DB
+	location *time.Location
 }
 
 type listReminderArgs struct {
@@ -19,9 +21,10 @@ type listReminderArgs struct {
 	IncludeCompleted bool   `json:"include_completed"`
 }
 
-func NewListRemindersTool(db *sql.DB) *ListReminderTool {
+func NewListRemindersTool(db *sql.DB, location *time.Location) *ListReminderTool {
 	return &ListReminderTool{
-		db: db,
+		db:       db,
+		location: location,
 	}
 }
 
@@ -30,7 +33,7 @@ func (l *ListReminderTool) Name() string {
 }
 
 func (l *ListReminderTool) Description() string {
-	return "List the user's reminders, sorted by due date. Use this to answer questions like 'what's coming up?', and always call it first to find a reminder's id before using complete_reminder, update_reminder, or delete_reminder. When looking for a specific reminder by name, omit from and to so a date filter doesn't hide it. Returns a JSON array of reminders with their ids; an empty result means nothing matched."
+	return "List the user's reminders, sorted by due date. Use this to answer questions like 'what's coming up?', and always call it first to find a reminder's id before using complete_reminder, update_reminder, or delete_reminder. When looking for a specific reminder by name, omit from and to so a date filter doesn't hide it. Returns a JSON array of reminders with their ids; an empty result means nothing matched. The result times are in the user's local time (e.g. 2026-10-02T18:00:00+08:00)"
 }
 
 func (l *ListReminderTool) InputSchema() json.RawMessage {
@@ -82,6 +85,14 @@ func (l *ListReminderTool) Execute(ctx context.Context, args json.RawMessage) (R
 
 	if err != nil {
 		return Result{}, err
+	}
+
+	for i := range reminderList {
+		dueAt, err := time.Parse(time.RFC3339, reminderList[i].DueAt)
+		if err != nil {
+			return Result{}, fmt.Errorf("reminder %d has invalid due_at, %q: %w", reminderList[i].ID, dueAt, err)
+		}
+		reminderList[i].DueAt = dueAt.In(l.location).Format(time.RFC3339)
 	}
 
 	/* data is json text, but in array of bytes format */

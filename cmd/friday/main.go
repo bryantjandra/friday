@@ -66,15 +66,20 @@ func runPrompt(prompt string) error {
 		return err
 	}
 
+	loc, err := time.LoadLocation(cfg.Timezone)
+	if err != nil {
+		return err
+	}
+
 	registry := tools.NewRegistry()
 	registry.RegisterTool(tools.NewCreateReminderTool(db))
-	registry.RegisterTool(tools.NewListRemindersTool(db))
+	registry.RegisterTool(tools.NewListRemindersTool(db, loc))
 	registry.RegisterTool(tools.NewCompleteReminderTool(db))
 	registry.RegisterTool(tools.NewDeleteReminderTool(db))
 	registry.RegisterTool(tools.NewUpdateReminderTool(db))
 	client := llm.NewClient(cfg)
 
-	ag := agent.NewAgent(client, registry)
+	ag := agent.NewAgent(client, registry, loc)
 	result, err := ag.Run(context.Background(), prompt)
 
 	if err != nil {

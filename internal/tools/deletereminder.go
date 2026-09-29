@@ -29,7 +29,7 @@ func (t *DeleteReminderTool) Name() string {
 }
 
 func (t *DeleteReminderTool) Description() string {
-	return "Permanently delete a reminder. This cannot be undone. Use this only when the user explicitly asks to delete, remove, or cancel a reminder; if they have done the task, use complete_reminder instead. Get the id from list_reminders first; never guess an id."
+	return "Permanently delete a reminder. This cannot be undone. Use this only when the user explicitly asks to delete, remove, or cancel a reminder; if they have done the task, use complete_reminder instead. Get the id from list_reminders first; never guess an id. If two or more reminders match the user's words (e.g. two titles containing 'dentist'), do NOT call this tool: list the matching reminders and ask the user which one they mean."
 }
 
 func (t *DeleteReminderTool) InputSchema() json.RawMessage {

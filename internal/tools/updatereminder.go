@@ -73,7 +73,7 @@ func (t *UpdateReminderTool) Execute(ctx context.Context, args json.RawMessage) 
 		}
 	}
 
-	res, err := store.UpdateReminder(t.db, a.ID, a.Title, dueAtParsed)
+	err = store.UpdateReminder(t.db, a.ID, a.Title, dueAtParsed)
 
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
@@ -85,5 +85,5 @@ func (t *UpdateReminderTool) Execute(ctx context.Context, args json.RawMessage) 
 		return Result{}, err
 	}
 
-	return Result{Content: res, IsError: false}, nil
+	return Result{Content: "Done!", IsError: false}, nil
 }

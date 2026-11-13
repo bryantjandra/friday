@@ -154,11 +154,11 @@ func runStoreTest() error {
 	}
 
 	/* Step 3: Test the db function you want to test */
-	res, err := store.UpdateReminder(db, 2, "bryans bday", time.Time{})
+	err = store.UpdateReminder(db, 2, "bryans bday", time.Time{})
 	if err != nil {
 		return err
 	} else {
-		fmt.Printf(res)
+		fmt.Printf("Done!s")
 	}
 
 	return nil

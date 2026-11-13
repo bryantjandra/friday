@@ -54,7 +54,7 @@ func (t *DeleteReminderTool) Execute(ctx context.Context, args json.RawMessage) 
 		return Result{Content: "invalid arguments", IsError: true}, nil
 	}
 
-	res, err := store.DeleteReminder(t.db, a.ID)
+	err = store.DeleteReminder(t.db, a.ID)
 
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
@@ -63,5 +63,5 @@ func (t *DeleteReminderTool) Execute(ctx context.Context, args json.RawMessage) 
 		return Result{}, err
 	}
 
-	return Result{Content: res, IsError: false}, nil
+	return Result{Content: "Done", IsError: false}, nil
 }

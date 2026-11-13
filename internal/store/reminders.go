@@ -3,7 +3,6 @@ package store
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 )
@@ -19,12 +18,32 @@ type Reminder struct {
 	CreatedAt string `json:"created_at"`
 }
 
+func GetReminder(db *sql.DB, id int64) (Reminder, error) {
+	query := "SELECT id, title, due_at, completed, created_at FROM reminders WHERE id = ?"
+
+	var res Reminder
+
+	row := db.QueryRow(query, id)
+
+	err := row.Scan(&res.ID, &res.Title, &res.DueAt, &res.Completed, &res.CreatedAt)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return Reminder{}, ErrNotFound
+	}
+
+	if err != nil {
+		return Reminder{}, err
+	}
+
+	return res, nil
+}
+
 func CreateReminder(db *sql.DB, title string, dueAt time.Time) (id int64, err error) {
 
 	/* Parameterised queries are used to avoid SQL injection attacks (the SQL command and the value are passed to the DB seperately, it plugs in the values as pure data). */
 	query := "INSERT INTO reminders (title, due_at, created_at) VALUES (?, ?, ?);"
 
-	/* sqlite stores eerything as strings (there is no date/time type). Thus, the RFC3339 format is needed to ensure the dates can be chronologically ordered, even though it's a string. */
+	/* sqlite stores everything as strings (there is no date/time type). Thus, the RFC3339 format is needed to ensure the dates can be chronologically ordered, even though it's a string. */
 	result, err := db.Exec(query, title, dueAt.UTC().Format(time.RFC3339), time.Now().UTC().Format(time.RFC3339))
 
 	if err != nil {
@@ -40,46 +59,46 @@ func CreateReminder(db *sql.DB, title string, dueAt time.Time) (id int64, err er
 
 }
 
-func CompleteReminder(db *sql.DB, id int64) (res string, err error) {
+func CompleteReminder(db *sql.DB, id int64) (err error) {
 	query := "UPDATE reminders SET completed=1 WHERE id = ?"
 	result, err := db.Exec(query, id)
 
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	/* we need to check how many rows are affected, because it actually doesn't return as an error if we pass in an id that doesn't exist in our DB */
 	/* that is why we need to make sure the number of rows affected is actually > 0, to prove that our function actually works as intended */
 	rows, err := result.RowsAffected()
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	if rows == 0 {
-		return "", ErrNotFound
+		return ErrNotFound
 	}
 
-	return fmt.Sprintf("Successfully completed reminder %d", id), nil
+	return nil
 }
 
-func DeleteReminder(db *sql.DB, id int64) (res string, err error) {
+func DeleteReminder(db *sql.DB, id int64) (err error) {
 	query := "DELETE FROM reminders WHERE id=?"
 	result, err := db.Exec(query, id)
 
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	rows, err := result.RowsAffected()
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	if rows == 0 {
-		return "", ErrNotFound
+		return ErrNotFound
 	}
 
-	return fmt.Sprintf("Successfully deleted reminder %d", id), nil
+	return nil
 }
 
 func ListReminders(db *sql.DB, from time.Time, to time.Time, includeCompleted bool) (reminders []Reminder, err error) {
@@ -129,7 +148,7 @@ func ListReminders(db *sql.DB, from time.Time, to time.Time, includeCompleted bo
 	return reminderList, nil
 }
 
-func UpdateReminder(db *sql.DB, id int64, title string, dueAt time.Time) (res string, err error) {
+func UpdateReminder(db *sql.DB, id int64, title string, dueAt time.Time) (err error) {
 	var conditions []string
 	var args []any
 
@@ -151,25 +170,25 @@ func UpdateReminder(db *sql.DB, id int64, title string, dueAt time.Time) (res st
 	}
 
 	if len(conditions) == 0 {
-		return "", ErrNothingToUpdate
+		return ErrNothingToUpdate
 	}
 
 	query += " WHERE id = ?"
 
 	result, err := db.Exec(query, args...)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	rows, err := result.RowsAffected()
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	if rows == 0 {
-		return "", ErrNotFound
+		return ErrNotFound
 	}
 
-	return fmt.Sprintf("Successfully updated reminder %d", id), nil
+	return nil
 
 }
